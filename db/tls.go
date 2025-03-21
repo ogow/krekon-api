@@ -6,40 +6,38 @@ import (
 
 	"github.com/projectdiscovery/tlsx/pkg/tlsx/clients"
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type TlsContract struct {
 	// Timestamp is the timestamp for certificate response
-	ID        bson.ObjectID `bson:"_id,omitempty"`
-	Timestamp *time.Time    `bson:"timestamp,omitempty"`
+	ID        bson.ObjectID `bson:"_id,omitempty" json:"id"`
+	Timestamp *time.Time    `bson:"timestamp,omitempty" json:"timestamp,omitempty"`
 	// Host is the host to make request to
-	Host string `bson:"host"`
+	Host string `bson:"host" json:"host"`
 	// IP is the IP address the request was made to
-	IP string `bson:"ip,omitempty"`
+	IP string `bson:"ip,omitempty" json:"ip,omitempty"`
 	// Port is the port to make request to
-	Port string `bson:"port"`
-	// ProbeStatus is false if the tls probe failed
-	ProbeStatus bool `bson:"probe_status"`
-	// Version is the tls version responded by the server
-	Version string `bson:"tls_version,omitempty"`
-	// Cipher is the cipher for the tls request
-	Cipher string `bson:"cipher,omitempty"`
-	// CertificateResponse is the leaf certificate embedded in json
-	*clients.CertificateResponse `bson:",inline"`
-	// TLSConnection is the client used for TLS connection
-	// when ran using scan-mode auto.
-	TLSConnection string `bson:"tls_connection,omitempty"`
+	Port string `bson:"port" json:"port"`
+	// ProbeStatus is false if the TLS probe failed
+	ProbeStatus bool `bson:"probe_status" json:"probe_status"`
+	// Version is the TLS version responded by the server
+	Version string `bson:"tls_version,omitempty" json:"tls_version,omitempty"`
+	// Cipher is the cipher for the TLS request
+	Cipher string `bson:"cipher,omitempty" json:"cipher,omitempty"`
+	// CertificateResponse is the leaf certificate embedded in JSON
+	*clients.CertificateResponse `bson:",inline" json:",inline"`
+	// TLSConnection is the client used for TLS connection when ran using scan-mode auto
+	TLSConnection string `bson:"tls_connection,omitempty" json:"tls_connection,omitempty"`
 	// Chain is the chain of certificates
-	Chain              []*clients.CertificateResponse `bson:"chain,omitempty"`
-	JarmHash           string                         `bson:"jarm_hash,omitempty"`
-	Ja3Hash            string                         `bson:"ja3_hash,omitempty"`
-	Ja3sHash           string                         `bson:"ja3s_hash,omitempty"`
-	ServerName         string                         `bson:"sni,omitempty"`
-	VersionEnum        []string                       `bson:"version_enum,omitempty"`
-	TlsCiphers         []clients.TlsCiphers           `bson:"cipher_enum,omitempty"`
-	ClientCertRequired *bool                          `bson:"client_cert_required,omitempty"`
-	// ClientHello        *ztls.ClientHello              `json:"client_hello,omitempty"`
-	// ServerHello        *ztls.ServerHello              `json:"servers_hello,omitempty"`
+	Chain              []*clients.CertificateResponse `bson:"chain,omitempty" json:"chain,omitempty"`
+	JarmHash           string                         `bson:"jarm_hash,omitempty" json:"jarm_hash,omitempty"`
+	Ja3Hash            string                         `bson:"ja3_hash,omitempty" json:"ja3_hash,omitempty"`
+	Ja3sHash           string                         `bson:"ja3s_hash,omitempty" json:"ja3s_hash,omitempty"`
+	ServerName         string                         `bson:"sni,omitempty" json:"sni,omitempty"`
+	VersionEnum        []string                       `bson:"version_enum,omitempty" json:"version_enum,omitempty"`
+	TlsCiphers         []clients.TlsCiphers           `bson:"cipher_enum,omitempty" json:"cipher_enum,omitempty"`
+	ClientCertRequired *bool                          `bson:"client_cert_required,omitempty" json:"client_cert_required,omitempty"`
 }
 
 func (db *Db) GetTlsEntries(r string) ([]*TlsContract, error) {
@@ -66,4 +64,41 @@ func (db *Db) GetTlsEntries(r string) ([]*TlsContract, error) {
 	}
 
 	return results, nil
+}
+
+func (db *Db) StoreTlsEntry(tlsData *TlsContract) (interface{}, error) {
+	tlsCollection := db.mongoClient.Database(db.name).Collection("tls")
+
+	cont := TlsContract{
+		Timestamp:           tlsData.Timestamp,
+		Host:                tlsData.Host,
+		IP:                  tlsData.IP,
+		Port:                tlsData.Port,
+		ProbeStatus:         tlsData.ProbeStatus,
+		Version:             tlsData.Version,
+		Cipher:              tlsData.Cipher,
+		CertificateResponse: tlsData.CertificateResponse,
+		TLSConnection:       tlsData.TLSConnection,
+		Chain:               tlsData.Chain,
+		JarmHash:            tlsData.JarmHash,
+		Ja3Hash:             tlsData.Ja3Hash,
+		Ja3sHash:            tlsData.Ja3sHash,
+		ServerName:          tlsData.ServerName,
+		VersionEnum:         tlsData.VersionEnum,
+		TlsCiphers:          tlsData.TlsCiphers,
+		ClientCertRequired:  tlsData.ClientCertRequired,
+	}
+
+	// tlsFilter := bson.D{{"$set", bson.D{{ }}}
+	opts := options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After)
+	upd := bson.D{{"$set", cont}}
+	tlsFilter := bson.M{"host": tlsData.Host}
+
+	var tlsCon *TlsContract
+
+	err := tlsCollection.FindOneAndUpdate(db.ctx, tlsFilter, upd, opts).Decode(&tlsCon)
+	if err != nil {
+		return nil, err
+	}
+	return tlsCon.ID, nil
 }
