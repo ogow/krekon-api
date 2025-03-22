@@ -11,11 +11,11 @@ An api to get recon data from mongodb.
     + [X] GET dns entries, regex search 
     + [X] GET tls entries, regex search 
     + [X] GET http entries, regex search 
-    + [ ] GET single http entry, based on id
-    + [ ] GET single dns entry, based on id
-    + [ ] GET single entry entry, based on id
-    + [ ] GET single tls entry, based on id
-    + [ ] GET Single host entry, based on id
+    + [ ] GET single http entry, based on url
+    + [X] GET single dns entry, based on hostname
+    + [X] GET single entry, based on hostname
+    + [X] GET single tls entry, based on hostname
+    + [X] GET Single host entry, based on hostname
     + [ ] GET Detailed info of a host
     + [X] POST input entries 
     + [X] POST dns entries 

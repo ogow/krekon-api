@@ -82,6 +82,46 @@ func (db *Db) GetDnsEntries(r string) ([]*DnsContract, error) {
 
 	return results, nil
 }
+func (db *Db) GetDnsEntry(host string) ([]*DnsContract, error) {
+	collection := db.mongoClient.Database(db.name).Collection("dns")
+	filter := bson.D{{
+		"host", host,
+	}}
+
+	cur, err := collection.Find(db.ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find any documents in dns collection, err: %v", err)
+	}
+
+	var results []*DnsContract
+	if err := cur.All(db.ctx, &results); err != nil {
+		return nil, fmt.Errorf("failed parse dns documents, err: %v", err)
+	}
+
+	if len(results) == 0 {
+		return []*DnsContract{}, err
+	}
+
+	return results, nil
+}
+
+func (db *Db) StoreDnsRef(dnsRefId interface{}, hostname string) (interface{}, error) {
+	entriesCollection := db.mongoClient.Database(db.name).Collection("entries")
+	update := bson.M{
+		"$addToSet": bson.M{"dns": dnsRefId},
+	}
+	opts := options.UpdateOne().SetUpsert(true)
+
+	filter := bson.M{"host": hostname}
+	// update := bson.M{"$set": bson.M{}}
+
+	result, err := entriesCollection.UpdateOne(db.ctx, filter, update, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
 
 func (db *Db) StoreDnsEntry(dnsData *ShitBrokenDnsxPackage) (interface{}, error) {
 	dnsCollection := db.mongoClient.Database(db.name).Collection("dns")

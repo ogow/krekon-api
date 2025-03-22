@@ -11,16 +11,41 @@ import (
 func (a *Api) HandleTlsEntries(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		a.HandleGetTlsEntries(w, r)
+		a.getTlsEntries(w, r)
 	case http.MethodPost:
-		a.HandlePostTlsEntries(w, r)
+		a.postTlsEntry(w, r)
 	default:
 		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
 		return
 	}
 }
 
-func (a *Api) HandleGetTlsEntries(w http.ResponseWriter, r *http.Request) {
+func (a *Api) HandleTlsEntry(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		a.getTlsEntry(w, r)
+	default:
+		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
+		return
+	}
+}
+
+func (a *Api) getTlsEntry(w http.ResponseWriter, r *http.Request) {
+	hostname := r.PathValue("host")
+
+	result, err := a.db.GetTlsEntry(hostname)
+	if err != nil {
+		http.Error(w, "Could not get entry", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		http.Error(w, "Could not json encode entry", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (a *Api) getTlsEntries(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 	result, err := a.db.GetTlsEntries(q)
 	if err != nil {
@@ -36,7 +61,7 @@ func (a *Api) HandleGetTlsEntries(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *Api) HandlePostTlsEntries(w http.ResponseWriter, r *http.Request) {
+func (a *Api) postTlsEntry(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 
@@ -46,16 +71,15 @@ func (a *Api) HandlePostTlsEntries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := a.db.StoreTlsEntry(result)
+	tlsId, err := a.db.StoreTlsEntry(result)
 	if err != nil {
 		http.Error(w, "Could not get entries", http.StatusInternalServerError)
 		return
 	}
 
-	// w.Header().Set("Content-Type", "application/json")
-
-	// if err := json.NewEncoder(w).Encode(result); err != nil {
-	// 	http.Error(w, "Could not json encode entries", http.StatusInternalServerError)
-	// 	return
-	// }
+	_, err = a.db.StoreTlsRef(tlsId, result.Host)
+	if err != nil {
+		http.Error(w, "Could not store tls ref in entries collection", http.StatusInternalServerError)
+		return
+	}
 }

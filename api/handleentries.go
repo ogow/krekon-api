@@ -8,6 +8,16 @@ import (
 	"github.com/ogow/krekon-api/db"
 )
 
+func (a *Api) HandleEntry(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		a.handleGetEntry(w, r)
+	default:
+		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
+		return
+	}
+}
+
 func (a *Api) HandleEntries(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -50,11 +60,19 @@ func (a *Api) handlePostEntry(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not get entries", http.StatusInternalServerError)
 		return
 	}
+}
 
-	// w.Header().Set("Content-Type", "application/json")
+func (a *Api) handleGetEntry(w http.ResponseWriter, r *http.Request) {
+	hostname := r.PathValue("host")
 
-	// if err := json.NewEncoder(w).Encode(result); err != nil {
-	// 	http.Error(w, "Could not json encode entries", http.StatusInternalServerError)
-	// 	return
-	// }
+	result, err := a.db.GetEntry(hostname)
+	if err != nil {
+		http.Error(w, "Could not get entry", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		http.Error(w, "Could not json encode entry", http.StatusInternalServerError)
+		return
+	}
 }

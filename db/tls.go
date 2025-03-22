@@ -40,6 +40,35 @@ type TlsContract struct {
 	ClientCertRequired *bool                          `bson:"client_cert_required,omitempty" json:"client_cert_required,omitempty"`
 }
 
+func (db *Db) StoreTlsRef(tlsId interface{}, hostname string) (interface{}, error) {
+	entriesCollection := db.mongoClient.Database(db.name).Collection("entries")
+	// update := bson.D{{bson.D{{"$push", "$set", bson.D{{"dns", dnsRefId}}}}}}
+	update := bson.M{"$addToSet": bson.M{"tls": tlsId}}
+
+	opts := options.UpdateOne().SetUpsert(true)
+
+	filter := bson.M{"host": hostname}
+	// update := bson.M{"$set": bson.M{}}
+
+	id, err := entriesCollection.UpdateOne(db.ctx, filter, update, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	return id, err
+}
+
+func (db *Db) GetTlsEntry(hostname string) (*TlsContract, error) {
+	coll := db.mongoClient.Database(db.name).Collection("tls")
+	filter := bson.D{{"host", hostname}}
+	// Retrieves the first matching document
+	var result *TlsContract
+	if err := coll.FindOne(db.ctx, filter).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to find one document for %s, err: %v", hostname, err)
+	}
+	return result, nil
+}
+
 func (db *Db) GetTlsEntries(r string) ([]*TlsContract, error) {
 	collection := db.mongoClient.Database(db.name).Collection("tls")
 
