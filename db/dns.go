@@ -82,7 +82,31 @@ func (db *Db) GetDnsEntries(r string) ([]*DnsContract, error) {
 
 	return results, nil
 }
-func (db *Db) GetDnsEntry(host string) ([]*DnsContract, error) {
+
+// func (db *Db) GetDnsEntryById(id interface{}) ([]*DnsContract, error) {
+// 	collection := db.mongoClient.Database(db.name).Collection("dns")
+// 	filter := bson.D{{
+// 		"_id", id,
+// 	}}
+//
+// 	cur, err := collection.Find(db.ctx, filter)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to find any documents in dns collection, err: %v", err)
+// 	}
+//
+// 	var results []*DnsContract
+// 	if err := cur.All(db.ctx, &results); err != nil {
+// 		return nil, fmt.Errorf("failed parse dns documents, err: %v", err)
+// 	}
+//
+// 	if len(results) == 0 {
+// 		return []*DnsContract{}, err
+// 	}
+//
+// 	return results, nil
+// }
+
+func (db *Db) GetDnsEntriesByHostName(host string) ([]*DnsContract, error) {
 	collection := db.mongoClient.Database(db.name).Collection("dns")
 	filter := bson.D{{
 		"host", host,

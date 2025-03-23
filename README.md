@@ -23,4 +23,6 @@ An api to get recon data from mongodb.
     + [X] POST http entries
     + [ ] Implement pagination for get requests - 25,50,100
     + [ ] Handle errors - return json string with error instead of a text document
+    + [ ] Add redis caching - set cache logic in krekon and only get cache if there is any in the API
+    + [ ] Create unit tests
 

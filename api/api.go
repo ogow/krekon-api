@@ -34,6 +34,7 @@ func (a *Api) ServeApi() {
 	http.HandleFunc("/hosts/{host}", a.HandleHostEntry)
 	http.HandleFunc("/dns", a.HandleDnsEntries)
 	http.HandleFunc("/dns/{host}", a.HandleDnsEntry)
+	http.HandleFunc("/dns/{host}/{id}", a.HandleDnsEntry)
 	http.HandleFunc("/tls", a.HandleTlsEntries)
 	http.HandleFunc("/tls/{host}", a.HandleTlsEntry)
 	http.HandleFunc("/http", a.HandleHttpEntries)

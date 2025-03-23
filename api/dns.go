@@ -20,10 +20,22 @@ func (a *Api) HandleDnsEntries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
 func (a *Api) HandleDnsEntry(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		a.handleGetDnsSingleHost(w, r)
+	default:
+		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
+		return
+	}
+}
+
+func (a *Api) HandleDnsEntryId(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// a.handleGetDnsSingleHost(w, r)
+	case http.MethodPost:
 	default:
 		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
 		return
@@ -48,7 +60,7 @@ func (a *Api) handleGetDns(w http.ResponseWriter, r *http.Request) {
 
 func (a *Api) handleGetDnsSingleHost(w http.ResponseWriter, r *http.Request) {
 	host := r.PathValue("host")
-	result, err := a.db.GetDnsEntry(host)
+	result, err := a.db.GetDnsEntriesByHostName(host)
 	if err != nil {
 		http.Error(w, "Could not get entries", http.StatusInternalServerError)
 		return

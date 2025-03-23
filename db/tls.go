@@ -58,15 +58,27 @@ func (db *Db) StoreTlsRef(tlsId interface{}, hostname string) (interface{}, erro
 	return id, err
 }
 
-func (db *Db) GetTlsEntry(hostname string) (*TlsContract, error) {
-	coll := db.mongoClient.Database(db.name).Collection("tls")
-	filter := bson.D{{"host", hostname}}
-	// Retrieves the first matching document
-	var result *TlsContract
-	if err := coll.FindOne(db.ctx, filter).Decode(&result); err != nil {
-		return nil, fmt.Errorf("failed to find one document for %s, err: %v", hostname, err)
+func (db *Db) GetTlsEntry(hostname string) ([]*TlsContract, error) {
+	collection := db.mongoClient.Database(db.name).Collection("tls")
+
+	filter := bson.D{{
+		"host", hostname,
+	}}
+
+	cur, err := collection.Find(db.ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find any documents for %s in tls collection, err: %v", hostname, err)
 	}
-	return result, nil
+
+	var results []*TlsContract
+	if err := cur.All(db.ctx, &results); err != nil {
+		return nil, fmt.Errorf("failed parse tls documents, err: %v", err)
+	}
+	if len(results) == 0 {
+		return []*TlsContract{}, err
+	}
+
+	return results, nil
 }
 
 func (db *Db) GetTlsEntries(r string) ([]*TlsContract, error) {
