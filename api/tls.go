@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ogow/krekon-api/db"
+	"github.com/projectdiscovery/tlsx/pkg/tlsx/clients"
 )
 
 func (a *Api) HandleTlsEntries(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +65,7 @@ func (a *Api) postTlsEntry(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 
-	var result *db.TlsContract
+	var result *clients.Response
 	if err := d.Decode(&result); err != nil {
 		http.Error(w, "could not json decode req body", http.StatusBadRequest)
 		return

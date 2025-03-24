@@ -107,7 +107,7 @@ func (db *Db) GetTlsEntries(r string) ([]*TlsContract, error) {
 	return results, nil
 }
 
-func (db *Db) StoreTlsEntry(tlsData *TlsContract) (interface{}, error) {
+func (db *Db) StoreTlsEntry(tlsData *clients.Response) (interface{}, error) {
 	tlsCollection := db.mongoClient.Database(db.name).Collection("tls")
 
 	cont := TlsContract{

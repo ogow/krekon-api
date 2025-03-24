@@ -26,6 +26,24 @@ type HttpInfoContract struct {
 	Timestamp time.Time           `bson:"timestamp,omitempty" json:"timestamp,omitempty"`
 }
 
+func (db *Db) StoreHttpRef(httpRefId interface{}, hostname string) (interface{}, error) {
+	entriesCollection := db.mongoClient.Database(db.name).Collection("entries")
+	update := bson.M{
+		"$addToSet": bson.M{"http": httpRefId},
+	}
+	opts := options.UpdateOne().SetUpsert(true)
+
+	filter := bson.M{"host": hostname}
+	// update := bson.M{"$set": bson.M{}}
+
+	result, err := entriesCollection.UpdateOne(db.ctx, filter, update, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (db *Db) GetHttpEntries(r string) ([]*HttpInfoContract, error) {
 	collection := db.mongoClient.Database(db.name).Collection("http")
 
@@ -53,7 +71,30 @@ func (db *Db) GetHttpEntries(r string) ([]*HttpInfoContract, error) {
 	return results, nil
 }
 
-func (db *Db) StoreHttpEntries(httpInfo *HttpInfoContract) (interface{}, error) {
+func (db *Db) GetHttpEntriesByHostName(host string) ([]*HttpInfoContract, error) {
+	collection := db.mongoClient.Database(db.name).Collection("http")
+	filter := bson.D{{
+		"host", host,
+	}}
+
+	cur, err := collection.Find(db.ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find any documents in http collection, err: %v", err)
+	}
+
+	var results []*HttpInfoContract
+	if err := cur.All(db.ctx, &results); err != nil {
+		return nil, fmt.Errorf("failed parse http documents, err: %v", err)
+	}
+
+	if len(results) == 0 {
+		return []*HttpInfoContract{}, err
+	}
+
+	return results, nil
+}
+
+func (db *Db) StoreHttpEntry(httpInfo *HttpInfoContract) (interface{}, error) {
 	collection := db.mongoClient.Database(db.name).Collection("http")
 	// get subdomain name from url
 	filter := bson.M{"url": httpInfo.Url}

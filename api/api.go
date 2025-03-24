@@ -38,7 +38,7 @@ func (a *Api) ServeApi() {
 	http.HandleFunc("/tls", a.HandleTlsEntries)
 	http.HandleFunc("/tls/{host}", a.HandleTlsEntry)
 	http.HandleFunc("/http", a.HandleHttpEntries)
-	// http.HandleFunc("/http/{url}", a.HandleHttpEntries)
+	http.HandleFunc("/http/{host}", a.HandleHttpEntryByHostName)
 
 	fmt.Println("serving API on port 3000")
 	log.Fatal(http.ListenAndServe(":3000", nil))
