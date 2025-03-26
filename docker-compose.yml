@@ -1,0 +1,47 @@
+services:
+  mongodb:
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD="KREKON_API_PASSWORD"
+      - MONGO_INITDB_DATABASE=recondb
+    image: mongo:latest
+    restart: always
+    container_name: krekon-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - krekonapinetwork
+  redis:
+    image: redis:latest
+    container_name: krekon-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - krekonapinetwork
+  krekonapi:
+    container_name: krekonapi
+    links:
+      - mongodb
+      - redis
+    networks:
+      - krekonapinetwork
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - mongodb
+
+volumes:
+  mongodb_data:
+  redis_data:
+networks:
+  krekonapinetwork:

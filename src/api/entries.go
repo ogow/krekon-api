@@ -11,7 +11,11 @@ import (
 func (a *Api) HandleEntry(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		a.handleGetEntry(w, r)
+		if r.URL.Query().Get("detailed") == "true" {
+			a.getEntriesByHostNameDetailed(w, r)
+		} else {
+			a.getEntry(w, r)
+		}
 	default:
 		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
 		return
@@ -21,16 +25,21 @@ func (a *Api) HandleEntry(w http.ResponseWriter, r *http.Request) {
 func (a *Api) HandleEntries(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		a.handleGetEntries(w, r)
+		if r.URL.Query().Get("detailed") == "true" {
+			a.getEntriesDetailed(w, r)
+		} else {
+			a.getEntries(w, r)
+		}
+
 	case http.MethodPost:
-		a.handlePostEntry(w, r)
+		a.postEntry(w, r)
 	default:
 		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
 		return
 	}
 }
 
-func (a *Api) handleGetEntries(w http.ResponseWriter, r *http.Request) {
+func (a *Api) getEntries(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 	result, err := a.db.GetEntries(q)
 	if err != nil {
@@ -46,7 +55,42 @@ func (a *Api) handleGetEntries(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *Api) handlePostEntry(w http.ResponseWriter, r *http.Request) {
+func (a *Api) getEntriesDetailed(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Get("q")
+	result, err := a.db.GetEntriesDetailed(q)
+	if err != nil {
+		e := fmt.Sprintf("Could not get detailed entries, err: %v", err)
+		http.Error(w, e, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		http.Error(w, "Could not json encode entries", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (a *Api) getEntriesByHostNameDetailed(w http.ResponseWriter, r *http.Request) {
+	hostname := r.PathValue("host")
+
+	result, err := a.db.GetEntriesByHostNameDetailed(hostname)
+	if err != nil {
+		e := fmt.Sprintf("Could not get detailed entries, err: %v", err)
+		http.Error(w, e, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		http.Error(w, "Could not json encode entries", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (a *Api) postEntry(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	var result db.EntryContract
@@ -62,7 +106,7 @@ func (a *Api) handlePostEntry(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *Api) handleGetEntry(w http.ResponseWriter, r *http.Request) {
+func (a *Api) getEntry(w http.ResponseWriter, r *http.Request) {
 	hostname := r.PathValue("host")
 
 	result, err := a.db.GetEntry(hostname)
