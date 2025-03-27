@@ -1,9 +1,8 @@
 services:
   mongodb:
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD="KREKON_API_PASSWORD"
-      - MONGO_INITDB_DATABASE=recondb
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: krekonApiPasswordOskarWasHere123
     image: mongo:latest
     restart: always
     container_name: krekon-mongodb
@@ -13,6 +12,7 @@ services:
       - mongodb_data:/data/db
     networks:
       - krekonapinetwork
+
   redis:
     image: redis:latest
     container_name: krekon-redis
@@ -23,11 +23,12 @@ services:
       - redis_data:/data
     networks:
       - krekonapinetwork
+
   krekonapi:
     container_name: krekonapi
     links:
-      - mongodb
-      - redis
+      - "mongodb:db"
+      - "redis"
     networks:
       - krekonapinetwork
     restart: always
@@ -43,5 +44,6 @@ services:
 volumes:
   mongodb_data:
   redis_data:
+
 networks:
   krekonapinetwork:

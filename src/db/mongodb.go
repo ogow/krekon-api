@@ -21,7 +21,7 @@ func ConnectMongo(ctx context.Context, conn string, uname, passw string) *mongo.
 	if err != nil {
 		log.Fatal(err)
 	}
-	ctxConn, cancel := context.WithTimeout(ctx, 1*time.Second)
+	ctxConn, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	err = client.Ping(ctxConn, nil)
 	if err != nil {
