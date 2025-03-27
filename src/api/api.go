@@ -40,6 +40,6 @@ func (a *Api) ServeApi() {
 	http.HandleFunc("/http", a.HandleHttpEntries)
 	http.HandleFunc("/http/{host}", a.HandleHttpEntryByHostName)
 
-	fmt.Println("serving API on port 3000")
+	fmt.Println("serving API on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

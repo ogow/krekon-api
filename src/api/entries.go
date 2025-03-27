@@ -16,6 +16,8 @@ func (a *Api) HandleEntry(w http.ResponseWriter, r *http.Request) {
 		} else {
 			a.getEntry(w, r)
 		}
+	case http.MethodDelete:
+		a.deleteEntry(w, r)
 	default:
 		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
 		return
@@ -37,6 +39,15 @@ func (a *Api) HandleEntries(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
 		return
 	}
+}
+
+func (a *Api) deleteEntry(w http.ResponseWriter, r *http.Request) {
+	hostname := r.PathValue("host")
+	if err := a.db.DeleteEntry(hostname); err != nil {
+		http.Error(w, fmt.Sprintf("failed to delete entry %s, err %v", hostname, err), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusAccepted)
 }
 
 func (a *Api) getEntries(w http.ResponseWriter, r *http.Request) {
@@ -104,6 +115,7 @@ func (a *Api) postEntry(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not get entries", http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (a *Api) getEntry(w http.ResponseWriter, r *http.Request) {
