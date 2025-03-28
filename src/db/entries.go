@@ -43,6 +43,7 @@ func (db *Db) DeleteEntry(hostname string) error {
 		return fmt.Errorf("could not find and delete document, err: %v", err)
 	}
 
+	// these delete statments should probalby be rewritten, return err at end of all delete statments
 	if len(entry.Dns) > 0 {
 		if _, err := collDns.DeleteMany(db.ctx, bson.M{"_id": bson.M{"$in": entry.Dns}}); err != nil {
 			return err
