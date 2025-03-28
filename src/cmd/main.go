@@ -11,7 +11,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	mongoClient := db.ConnectMongo(ctx, "mongodb://db:27017", "root", "krekonApiPasswordOskarWasHere123")
+	mongoClient := db.ConnectMongo(ctx, "mongodb://mongodb:27017", "root", "krekonApiPasswordOskarWasHere123")
 	redisClient := db.ConnectRedis(ctx, "redis:6379")
 
 	db := db.New(mongoClient, redisClient, "recondb")

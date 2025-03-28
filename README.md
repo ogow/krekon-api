@@ -11,12 +11,12 @@ An api to get recon data from mongodb.
     + [X] GET dns entries, regex search 
     + [X] GET tls entries, regex search 
     + [X] GET http entries, regex search 
-    + [ ] GET single http entry, based on url
+    + [X] GET single http entry, based on host
     + [X] GET single dns entry, based on hostname
     + [X] GET single entry, based on hostname
     + [X] GET single tls entry, based on hostname
     + [X] GET Single host entry, based on hostname
-    + [ ] GET Detailed info of a host
+    + [X] GET Detailed info of a host
     + [X] POST input entries 
     + [X] POST dns entries 
     + [X] POST tls entries 
@@ -24,5 +24,5 @@ An api to get recon data from mongodb.
     + [ ] Implement pagination for get requests - 25,50,100
     + [ ] Handle errors - return json string with error instead of a text document
     + [ ] Add redis caching - set cache logic in krekon and only get cache if there is any in the API
-    + [ ] Create unit tests
+    + [ ] Create unit and integration tests
 
