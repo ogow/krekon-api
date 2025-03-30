@@ -26,6 +26,9 @@ services:
 
   krekonapi:
     container_name: krekonapi
+    environment:
+      PORT: 3000
+      API_URL: ""
     links:
       - "mongodb"
       - "redis"
@@ -51,27 +54,27 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - metabasedb-data:/var/lib/postgresql/data
     networks:
       - krekonapinetwork
 
   metabase:
     volumes:
-      - ./metabase-data:/metabase-data
+      - metabase-data:/metabase-data
     environment:
-      - MB_DB_FILE=/metabase-data/metabase.db
+      # - MB_DB_FILE=/metabase-data/metabase.db
       - MB_DB_TYPE=postgres
-      - MB_DB_DBNAME=DATABASE
+      - MB_DB_DBNAME=metabase
       - MB_DB_PORT=5432
       - MB_DB_USER=USERNAME
       - MB_DB_PASS=PASWORD
-      - MB_DB_HOST=metabasedb
+      - MB_DB_HOST=postgres
     ports:
       - 3001:3000
     image: metabase/metabase
     restart: always
     healthcheck:
-      test: curl --fail -I http://localhost:3001/api/health || exit 1
+      test: curl --fail -I http://localhost:3000/api/health || exit 1
       interval: 15s
       timeout: 5s
       retries: 5
@@ -83,6 +86,7 @@ services:
 volumes:
   mongodb_data:
   redis_data:
+  metabasedb-data:
   metabase-data:
 
 networks:

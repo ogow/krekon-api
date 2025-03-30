@@ -26,6 +26,8 @@ services:
 
   krekonapi:
     container_name: krekonapi
+    environment:
+      PORT: 8080
     links:
       - "mongodb:db"
       - "redis"

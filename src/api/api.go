@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/ogow/krekon-api/db"
 )
@@ -40,6 +41,6 @@ func (a *Api) ServeApi() {
 	http.HandleFunc("/http", a.HandleHttpEntries)
 	http.HandleFunc("/http/{host}", a.HandleHttpEntryByHostName)
 
-	fmt.Println("serving API on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Println("serving API on port", os.Getenv("PORT"))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }
