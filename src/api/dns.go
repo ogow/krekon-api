@@ -31,16 +31,16 @@ func (a *Api) HandleDnsEntry(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *Api) HandleDnsEntryId(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		// a.handleGetDnsSingleHost(w, r)
-	case http.MethodPost:
-	default:
-		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
-		return
-	}
-}
+// func (a *Api) HandleDnsEntryId(w http.ResponseWriter, r *http.Request) {
+// 	switch r.Method {
+// 	case http.MethodGet:
+// 		// a.handleGetDnsSingleHost(w, r)
+// 	case http.MethodPost:
+// 	default:
+// 		http.Error(w, fmt.Sprint("http method not supported"), http.StatusBadRequest)
+// 		return
+// 	}
+// }
 
 func (a *Api) handleGetDns(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
@@ -78,7 +78,7 @@ func (a *Api) handlePostDns(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 
-	var result *db.ShitBrokenDnsxPackage
+	var result db.ShitBrokenDnsxPackage
 	if err := d.Decode(&result); err != nil {
 		http.Error(w, "could not json decode req body", http.StatusBadRequest)
 		return

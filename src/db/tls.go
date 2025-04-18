@@ -43,7 +43,10 @@ type TlsContract struct {
 func (db *Db) StoreTlsRef(tlsId interface{}, hostname string) (interface{}, error) {
 	entriesCollection := db.mongoClient.Database(db.name).Collection("entries")
 	// update := bson.D{{bson.D{{"$push", "$set", bson.D{{"dns", dnsRefId}}}}}}
-	update := bson.M{"$addToSet": bson.M{"tls": tlsId}}
+	update := bson.M{
+		"$addToSet": bson.M{"tls": tlsId},
+		"$set":      bson.M{"created_at": time.Now()},
+	}
 
 	opts := options.UpdateOne().SetUpsert(true)
 

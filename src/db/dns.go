@@ -133,6 +133,7 @@ func (db *Db) StoreDnsRef(dnsRefId interface{}, hostname string) (interface{}, e
 	entriesCollection := db.mongoClient.Database(db.name).Collection("entries")
 	update := bson.M{
 		"$addToSet": bson.M{"dns": dnsRefId},
+		"$set":      bson.M{"created_at": time.Now()},
 	}
 	opts := options.UpdateOne().SetUpsert(true)
 
@@ -147,7 +148,7 @@ func (db *Db) StoreDnsRef(dnsRefId interface{}, hostname string) (interface{}, e
 	return result, nil
 }
 
-func (db *Db) StoreDnsEntry(dnsData *ShitBrokenDnsxPackage) (interface{}, error) {
+func (db *Db) StoreDnsEntry(dnsData ShitBrokenDnsxPackage) (interface{}, error) {
 	dnsCollection := db.mongoClient.Database(db.name).Collection("dns")
 
 	opts := options.Find().SetSort(bson.D{{"timestamp", -1}}) // sort decending date, latest date first

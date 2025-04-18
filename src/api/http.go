@@ -32,7 +32,7 @@ func (a *Api) HandleHttpEntryByHostName(w http.ResponseWriter, r *http.Request) 
 
 func getHttpEntriesByHostName(w http.ResponseWriter, r *http.Request, db *db.Db) {
 	host := r.PathValue("host")
-	result, err := db.GetHttpEntries(host)
+	result, err := db.GetHttpEntriesByHostName(host)
 	if err != nil {
 		http.Error(w, "Could not get http entries", http.StatusInternalServerError)
 	}

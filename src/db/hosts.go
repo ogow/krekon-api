@@ -19,7 +19,10 @@ type OpenPortsContract struct {
 func (db *Db) StoreHostsRef(hostId interface{}, hostname string) (interface{}, error) {
 	entriesCollection := db.mongoClient.Database(db.name).Collection("entries")
 	// update := bson.D{{bson.D{{"$push", "$set", bson.D{{"dns", dnsRefId}}}}}}
-	update := bson.M{"$addToSet": bson.M{"hosts": hostId}}
+	update := bson.M{
+		"$addToSet": bson.M{"hosts": hostId},
+		"$set":      bson.M{"created_at": time.Now()},
+	}
 
 	opts := options.UpdateOne().SetUpsert(true)
 

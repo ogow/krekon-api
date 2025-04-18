@@ -30,6 +30,7 @@ func (db *Db) StoreHttpRef(httpRefId interface{}, hostname string) (interface{},
 	entriesCollection := db.mongoClient.Database(db.name).Collection("entries")
 	update := bson.M{
 		"$addToSet": bson.M{"http": httpRefId},
+		"$set":      bson.M{"created_at": time.Now()},
 	}
 	opts := options.UpdateOne().SetUpsert(true)
 
@@ -71,10 +72,11 @@ func (db *Db) GetHttpEntries(r string) ([]*HttpInfoContract, error) {
 	return results, nil
 }
 
-func (db *Db) GetHttpEntriesByHostName(host string) ([]*HttpInfoContract, error) {
+func (db *Db) GetHttpEntriesByHostName(host string) ([]HttpInfoContract, error) {
 	collection := db.mongoClient.Database(db.name).Collection("http")
+	m := fmt.Sprintf(`^%s$`, host)
 	filter := bson.D{{
-		"host", host,
+		"host", bson.D{{"$regex", m}},
 	}}
 
 	cur, err := collection.Find(db.ctx, filter)
@@ -82,13 +84,13 @@ func (db *Db) GetHttpEntriesByHostName(host string) ([]*HttpInfoContract, error)
 		return nil, fmt.Errorf("failed to find any documents in http collection, err: %v", err)
 	}
 
-	var results []*HttpInfoContract
+	var results []HttpInfoContract
 	if err := cur.All(db.ctx, &results); err != nil {
 		return nil, fmt.Errorf("failed parse http documents, err: %v", err)
 	}
 
 	if len(results) == 0 {
-		return []*HttpInfoContract{}, err
+		return []HttpInfoContract{}, err
 	}
 
 	return results, nil
