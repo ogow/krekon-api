@@ -11,33 +11,34 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-type ShitBrokenDnsxPackage struct {
-	Host           string                  `json:"host,omitempty"`
-	TTL            uint32                  `json:"ttl,omitempty"`
-	Resolver       []string                `json:"resolver,omitempty"`
-	A              []string                `json:"a,omitempty"`
-	AAAA           []string                `json:"aaaa,omitempty"`
-	CNAME          []string                `json:"cname,omitempty"`
-	MX             []string                `json:"mx,omitempty"`
-	PTR            []string                `json:"ptr,omitempty"`
-	SOA            []retryabledns.SOA      `json:"soa,omitempty"`
-	NS             []string                `json:"ns,omitempty"`
-	TXT            []string                `json:"txt,omitempty"`
-	SRV            []string                `json:"srv,omitempty"`
-	CAA            []string                `json:"caa,omitempty"`
-	AllRecords     []string                `json:"all,omitempty"`
-	Raw            string                  `json:"raw,omitempty"`
-	HasInternalIPs bool                    `json:"has_internal_ips,omitempty"`
-	InternalIPs    []string                `json:"internal_ips,omitempty"`
-	StatusCode     string                  `json:"status_code,omitempty"`
-	StatusCodeRaw  int                     `json:"status_code_raw,omitempty"`
-	TraceData      *retryabledns.TraceData `json:"trace,omitempty"`
-	AXFRData       *retryabledns.AXFRData  `json:"axfr,omitempty"`
-	Timestamp      time.Time               `json:"timestamp,omitempty"`
-	HostsFile      bool                    `json:"hosts_file,omitempty"`
-}
+// type ShitBrokenDnsxPackage struct {
+// 	Host           string                  `json:"host,omitempty"`
+// 	TTL            uint32                  `json:"ttl,omitempty"`
+// 	Resolver       []string                `json:"resolver,omitempty"`
+// 	A              []string                `json:"a,omitempty"`
+// 	AAAA           []string                `json:"aaaa,omitempty"`
+// 	CNAME          []string                `json:"cname,omitempty"`
+// 	MX             []string                `json:"mx,omitempty"`
+// 	PTR            []string                `json:"ptr,omitempty"`
+// 	SOA            []retryabledns.SOA      `json:"soa,omitempty"`
+// 	NS             []string                `json:"ns,omitempty"`
+// 	TXT            []string                `json:"txt,omitempty"`
+// 	SRV            []string                `json:"srv,omitempty"`
+// 	CAA            []string                `json:"caa,omitempty"`
+// 	AllRecords     []string                `json:"all,omitempty"`
+// 	Raw            string                  `json:"raw,omitempty"`
+// 	HasInternalIPs bool                    `json:"has_internal_ips,omitempty"`
+// 	InternalIPs    []string                `json:"internal_ips,omitempty"`
+// 	StatusCode     string                  `json:"status_code,omitempty"`
+// 	StatusCodeRaw  int                     `json:"status_code_raw,omitempty"`
+// 	TraceData      *retryabledns.TraceData `json:"trace,omitempty"`
+// 	AXFRData       *retryabledns.AXFRData  `json:"axfr,omitempty"`
+// 	Timestamp      time.Time               `json:"timestamp,omitempty"`
+// 	HostsFile      bool                    `json:"hosts_file,omitempty"`
+// }
 
 type DnsContract struct {
+	Type           string                 `bson:"-" json:"type,omitempty"`
 	ID             bson.ObjectID          `bson:"_id,omitempty" json:"id"`
 	Host           string                 `bson:"host,omitempty" json:"host,omitempty"`
 	A              []string               `bson:"a,omitempty" json:"a,omitempty"`
@@ -49,11 +50,11 @@ type DnsContract struct {
 	PTR            []string               `bson:"ptr,omitempty" json:"ptr,omitempty"`
 	SOA            []retryabledns.SOA     `bson:"soa,omitempty" json:"soa,omitempty"`
 	AXFRData       *retryabledns.AXFRData `bson:"axfrdata,omitempty" json:"axfrdata,omitempty"`
-	StatusCode     string                 `bson:"statuscode,omitempty" json:"statuscode,omitempty"`
-	HasInternalIPs bool                   `bson:"hasinternalips,omitempty" json:"hasinternalips,omitempty"`
-	InternalIPs    []string               `bson:"internalips,omitempty" json:"internalips,omitempty"`
+	StatusCode     string                 `bson:"status_code,omitempty" json:"status_code,omitempty"`
+	HasInternalIPs bool                   `bson:"has_internal_ips,omitempty" json:"has_internal_ips,omitempty"`
+	InternalIPs    []string               `bson:"internal_ips,omitempty" json:"internal_ips,omitempty"`
 	Timestamp      time.Time              `bson:"timestamp,omitempty" json:"timestamp,omitempty"`
-	AllRecords     []string               `bson:"allrecords,omitempty" json:"allrecords,omitempty"`
+	AllRecords     []string               `bson:"all,omitempty" json:"all,omitempty"`
 }
 
 // get all dns entries based on a regex
@@ -148,7 +149,7 @@ func (db *Db) StoreDnsRef(dnsRefId interface{}, hostname string) (interface{}, e
 	return result, nil
 }
 
-func (db *Db) StoreDnsEntry(dnsData ShitBrokenDnsxPackage) (interface{}, error) {
+func (db *Db) StoreDnsEntry(dnsData DnsContract) (interface{}, error) {
 	dnsCollection := db.mongoClient.Database(db.name).Collection("dns")
 
 	opts := options.Find().SetSort(bson.D{{"timestamp", -1}}) // sort decending date, latest date first

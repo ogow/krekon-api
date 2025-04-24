@@ -78,7 +78,7 @@ func (a *Api) handlePostDns(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 
-	var result db.ShitBrokenDnsxPackage
+	var result db.DnsContract
 	if err := d.Decode(&result); err != nil {
 		http.Error(w, "could not json decode req body", http.StatusBadRequest)
 		return

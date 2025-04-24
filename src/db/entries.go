@@ -9,6 +9,7 @@ import (
 )
 
 type EntryContract struct {
+	Type      string          `bson:"-" json:"type,omitempty"`
 	ID        bson.ObjectID   `bson:"_id,omitempty" json:"id"`
 	Host      string          `bson:"host,omitempty" json:"host,omitempty"`
 	Dns       []bson.ObjectID `bson:"dns,omitempty" json:"dns,omitempty"`
@@ -19,6 +20,7 @@ type EntryContract struct {
 }
 
 type EntryContractDetailed struct {
+	Type      string              `bson:"-" json:"type,omitempty"`
 	ID        bson.ObjectID       `bson:"_id,omitempty" json:"id"`
 	Host      string              `bson:"host,omitempty" json:"host,omitempty"`
 	Dns       []DnsContract       `bson:"dns,omitempty" json:"dns,omitempty"`

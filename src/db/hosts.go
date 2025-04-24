@@ -9,6 +9,7 @@ import (
 )
 
 type OpenPortsContract struct {
+	Type      string        `bson:"-" json:"type,omitempty"`
 	ID        bson.ObjectID `bson:"_id,omitempty" json:"id"`
 	Host      string        `bson:"host,omitempty" json:"host,omitempty"`
 	IP        string        `bson:"ip,omitempty" json:"ip,omitempty"`

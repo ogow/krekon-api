@@ -11,19 +11,20 @@ import (
 
 // get all dns entries based on a regex
 type HttpInfoContract struct {
-	ID        bson.ObjectID       `bson:"_id,omitempty" json:"id,omitempty"`
-	Host      string              `bson:"host,omitempty" json:"host,omitempty"`
-	Url       string              `bson:"url,omitempty" json:"url,omitempty"`
-	Code      int                 `bson:"code,omitempty" json:"code,omitempty"`
-	Title     string              `bson:"title,omitempty" json:"title,omitempty"`
-	Length    int64               `bson:"length,omitempty" json:"length,omitempty"`
-	Words     int                 `bson:"words,omitempty" json:"words,omitempty"`
-	Location  string              `bson:"location,omitempty" json:"location,omitempty"`
-	Port      string              `bson:"port,omitempty" json:"port,omitempty"`
-	Headers   http.Header         `bson:"headers,omitempty" json:"headers,omitempty"`
-	Body      string              `bson:"body,omitempty" json:"body,omitempty"`
-	Tech      map[string]struct{} `bson:"tech,omitempty" json:"tech,omitempty"`
-	Timestamp time.Time           `bson:"timestamp,omitempty" json:"timestamp,omitempty"`
+	Type      string        `bson:"-" json:"type,omitempty"`
+	ID        bson.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Host      string        `bson:"host,omitempty" json:"host,omitempty"`
+	Url       string        `bson:"url,omitempty" json:"url,omitempty"`
+	Code      int           `bson:"code,omitempty" json:"code,omitempty"`
+	Title     string        `bson:"title,omitempty" json:"title,omitempty"`
+	Length    int64         `bson:"length,omitempty" json:"length,omitempty"`
+	Words     int           `bson:"words,omitempty" json:"words,omitempty"`
+	Location  string        `bson:"location,omitempty" json:"location,omitempty"`
+	Port      string        `bson:"port,omitempty" json:"port,omitempty"`
+	Headers   http.Header   `bson:"headers,omitempty" json:"headers,omitempty"`
+	Body      string        `bson:"body,omitempty" json:"body,omitempty"`
+	Tech      []string      `bson:"tech,omitempty" json:"tech,omitempty"`
+	Timestamp time.Time     `bson:"timestamp,omitempty" json:"timestamp,omitempty"`
 }
 
 func (db *Db) StoreHttpRef(httpRefId interface{}, hostname string) (interface{}, error) {
@@ -108,7 +109,7 @@ func (db *Db) StoreHttpEntry(httpInfo *HttpInfoContract) (interface{}, error) {
 		//"$addToSet": bson.M{"ports": portInt},
 	}
 
-	var result *HttpInfoContract
+	var result HttpInfoContract
 	if err := collection.FindOneAndUpdate(db.ctx, filter, upd, opts).Decode(&result); err != nil {
 		return nil, fmt.Errorf("failed to find and update http document for %v, err:%v", httpInfo, err)
 	}

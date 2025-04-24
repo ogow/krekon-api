@@ -11,6 +11,7 @@ import (
 
 type TlsContract struct {
 	// Timestamp is the timestamp for certificate response
+	Type      string        `bson:"-" json:"type,omitempty"`
 	ID        bson.ObjectID `bson:"_id,omitempty" json:"id"`
 	Timestamp *time.Time    `bson:"timestamp,omitempty" json:"timestamp,omitempty"`
 	// Host is the host to make request to
@@ -110,7 +111,7 @@ func (db *Db) GetTlsEntries(r string) ([]*TlsContract, error) {
 	return results, nil
 }
 
-func (db *Db) StoreTlsEntry(tlsData *clients.Response) (interface{}, error) {
+func (db *Db) StoreTlsEntry(tlsData TlsContract) (interface{}, error) {
 	tlsCollection := db.mongoClient.Database(db.name).Collection("tls")
 
 	cont := TlsContract{
@@ -138,7 +139,7 @@ func (db *Db) StoreTlsEntry(tlsData *clients.Response) (interface{}, error) {
 	upd := bson.D{{"$set", cont}}
 	tlsFilter := bson.M{"host": tlsData.Host}
 
-	var tlsCon *TlsContract
+	var tlsCon TlsContract
 
 	err := tlsCollection.FindOneAndUpdate(db.ctx, tlsFilter, upd, opts).Decode(&tlsCon)
 	if err != nil {
