@@ -86,6 +86,7 @@ services:
 volumes:
   mongodb_data:
   redis_data:
-
+  metabasedb-data:
+  metabase-data:
 networks:
   krekonapinetwork:
