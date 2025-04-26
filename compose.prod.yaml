@@ -58,6 +58,10 @@ services:
       - krekonapinetwork
 
   metabase:
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     volumes:
       - metabase-data:/metabase-data
     environment:
