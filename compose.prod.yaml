@@ -43,17 +43,19 @@ services:
       - redis
       - mongodb
 
-  metabasedb:
+  postgres:
     image: postgres
+    container_name: metabase-postgres
     restart: always
+    hostname: postgres
     environment:
-      - POSTGRES_PASSWORD=PASWORD
-      - POSTGRES_USER=USERNAME
-      - POSTGRES_DB=DATABASE
+      POSTGRES_PASSWORD: oskarwashere123!
+      POSTGRES_USER: metabase
+      POSTGRES_DB: metabasedb
     ports:
       - 5432:5432
     volumes:
-      - metabasedb-data:/var/lib/postgresql/data
+      - metabase-postgres-data:/var/lib/postgresql/data
     networks:
       - krekonapinetwork
 
@@ -66,12 +68,12 @@ services:
       - metabase-data:/metabase-data
     environment:
       # - MB_DB_FILE=/metabase-data/metabase.db
-      - MB_DB_TYPE=postgres
-      - MB_DB_DBNAME=metabase
-      - MB_DB_PORT=5432
-      - MB_DB_USER=USERNAME
-      - MB_DB_PASS=PASWORD
-      - MB_DB_HOST=postgres
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabasedb
+      MB_DB_PORT: 5432
+      MB_DB_USER: metabase
+      MB_DB_PASS: oskarwashere123!
+      MB_DB_HOST: postgres
     ports:
       - 3001:3000
     image: metabase/metabase
@@ -82,7 +84,7 @@ services:
       timeout: 5s
       retries: 5
     depends_on: 
-      - metabasedb
+      - postgres
     networks:
       - krekonapinetwork
 
@@ -90,7 +92,8 @@ services:
 volumes:
   mongodb_data:
   redis_data:
-  metabasedb-data:
+  metabase-postgres-data:
   metabase-data:
 networks:
   krekonapinetwork:
+    driver: bridge
